@@ -2,7 +2,12 @@
 
 Este projeto implementa soluções clássicas de sincronização e concorrência, como o **problema do Produtor/Consumidor** e o **problema dos Leitores/Escritores**, utilizando threads POSIX, semáforos, variáveis de condição e bloqueios de leitura/escrita (rwlocks). As implementações foram feitas em linguagem C e seguem o padrão POSIX.
 
+## Integrantes do Grupo
 
+- **Renato Santana**
+- **Thiago Belo**
+- **Minguel Andrade**
+- **João Pedro**
 
 ## Funcionalidades
 
@@ -22,4 +27,24 @@ Este projeto implementa soluções clássicas de sincronização e concorrência
 ## Estrutura do Projeto
 
 O projeto é organizado da seguinte forma:
+
+## Requisitos
+
+- Sistema operacional baseado em Linux (ou ambiente que suporte POSIX Threads).
+- Compilador **GCC**.
+- Biblioteca **pthread** para suporte a threads POSIX.
+  
+Para instalar as dependências no Ubuntu, execute o seguinte comando:
+
+```bash
+sudo apt update
+sudo apt install gcc make
+gcc -o Ex1 Ex1.c -lpthread
+gcc -o Ex2 Ex2.c -lpthread
+gcc -o Ex3 Ex3.c -lpthread
+gcc -o Ex4 Ex4.c -lpthread
+./Ex1      # Executa a solução do Produtor/Consumidor com Semáforos
+./Ex2      # Executa a solução do Produtor/Consumidor com Variáveis de Condição
+./Ex3      # Executa a solução dos Leitores/Escritores com Semáforos
+./Ex4      # Executa a solução dos Leitores/Escritores com RWLocks
 
