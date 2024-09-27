@@ -4,67 +4,59 @@
 #include <unistd.h>
 
 #define NUM_READERS 5
-#define NUM_WRITERS 2
+#define NUM_WRITERS 3
 
-pthread_rwlock_t rwlock; // RWLock para acesso à área compartilhada
+pthread_rwlock_t lock;
+int data = 0;  // Recurso compartilhado
 
-void *reader(void *arg) {
-    int reader_id = *((int *)arg);
+void* reader(void* arg) {
+    int id = *((int*) arg);
     while (1) {
-        pthread_rwlock_rdlock(&rwlock); // Obtém o lock de leitura
-
-        // Seção crítica (leitura)
-        printf("Leitor %d está lendo\n", reader_id);
-        sleep(1); // Simula tempo de leitura
-
-        pthread_rwlock_unlock(&rwlock); // Libera o lock de leitura
-
-        sleep(1); // Simula tempo fora da seção crítica
+        pthread_rwlock_rdlock(&lock);
+        printf("Leitor %d lendo o valor %d\n", id, data);
+        pthread_rwlock_unlock(&lock);
+        sleep(rand() % 5 + 1);  // Simula o tempo de leitura
     }
-    pthread_exit(NULL);
+    return NULL;
 }
 
-void *writer(void *arg) {
-    int writer_id = *((int *)arg);
+void* writer(void* arg) {
+    int id = *((int*) arg);
     while (1) {
-        pthread_rwlock_wrlock(&rwlock); // Obtém o lock de escrita
-
-        // Seção crítica (escrita)
-        printf("Escritor %d está escrevendo\n", writer_id);
-        sleep(2); // Simula tempo de escrita
-
-        pthread_rwlock_unlock(&rwlock); // Libera o lock de escrita
-
-        sleep(2); // Simula tempo fora da seção crítica
+        pthread_rwlock_wrlock(&lock);
+        data++;  // Modifica o recurso compartilhado
+        printf("Escritor %d escreveu o valor %d\n", id, data);
+        pthread_rwlock_unlock(&lock);
+        sleep(rand() % 5 + 2);  // Simula o tempo de escrita
     }
-    pthread_exit(NULL);
+    return NULL;
 }
 
 int main() {
-    pthread_t readers[NUM_READERS], writers[NUM_WRITERS];
-    int reader_ids[NUM_READERS], writer_ids[NUM_WRITERS];
+    pthread_t r[NUM_READERS], w[NUM_WRITERS];
+    int i, ids[NUM_READERS + NUM_WRITERS];
 
-    pthread_rwlock_init(&rwlock, NULL); // Inicializa o RWLock
+    pthread_rwlock_init(&lock, NULL);
 
-    for (int i = 0; i < NUM_READERS; i++) {
-        reader_ids[i] = i + 1;
-        pthread_create(&readers[i], NULL, reader, &reader_ids[i]);
+    for (i = 0; i < NUM_READERS; i++) {
+        ids[i] = i + 1;
+        pthread_create(&r[i], NULL, reader, &ids[i]);
     }
 
-    for (int i = 0; i < NUM_WRITERS; i++) {
-        writer_ids[i] = i + 1;
-        pthread_create(&writers[i], NULL, writer, &writer_ids[i]);
+    for (i = 0; i < NUM_WRITERS; i++) {
+        ids[i + NUM_READERS] = i + 1;
+        pthread_create(&w[i], NULL, writer, &ids[i + NUM_READERS]);
     }
 
-    for (int i = 0; i < NUM_READERS; i++) {
-        pthread_join(readers[i], NULL);
+    for (i = 0; i < NUM_READERS; i++) {
+        pthread_join(r[i], NULL);
     }
 
-    for (int i = 0; i < NUM_WRITERS; i++) {
-        pthread_join(writers[i], NULL);
+    for (i = 0; i < NUM_WRITERS; i++) {
+        pthread_join(w[i], NULL);
     }
 
-    pthread_rwlock_destroy(&rwlock); // Destroi o RWLock
+    pthread_rwlock_destroy(&lock);
 
     return 0;
 }
